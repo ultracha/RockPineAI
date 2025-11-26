@@ -1,0 +1,14 @@
+구분,필드명 (Eng),필드명 (Kor),데이터 타입,설명 및 예시,추가 설명
+Meta,Date,측정일자,Date,YYYY-MM-DD (예: 2025-06-14),
+Meta,Gutter_ID,거터번호,Categorical,1~12 (설치 위치 식별),
+Meta,Plant_ID,개체 ID,String,"예: 1-A, 7-E, 10-K (개별 식별코드)",
+Input,Soil_Type,배양토 종류,Categorical,"일반상토, 마사토, 암면배지, 코코배지, 진흙, 딸기배지",배양토에 따라서 Health와 Height에 영향을 주는지 여부 판단이 필요
+Input,Fertilizer,비료 종류,Categorical,"없음, 유기질비료, 와송박비료, 블루베리첨가",비료에 따라서 Health와 Height에 영향을 주는지 여부 판단이 필요
+Input,Plant_Age,모종 연식,Categorical,"1년생(종묘), 2년생(성체)",
+Input,Dripper_Count,드리퍼 개수,Integer,"4, 5, 6 (수분 공급량 결정 요인)",
+Input,Water_Daily_cc,일일 관수량,Integer,"15, 25, 50, 100 (단위: cc)",관수량에 따라서 Health와 Heigth에 주는 영향 파악
+Input,Ventilation,환기 상태,Binary,"0(닫힘), 1(천정창/유동휀 가동)",
+Target,Height_cm,성장 높이,Float,측정된 와송의 키 (cm),결과값으로 설정 환경의 판단 기준이 됨
+Target,Growth_Stage,성장 단계,Categorical,"잎펴짐, 겹줄기(종묘생산), 과밀, 휘어짐",
+Target,Health_Status,건강 상태,Categorical,"정상, 과습(녹조), 녹음병, 잎꼬임, 붉은끝(질병의심)",결과값으로 설정 환경의 판단 기준이 됨
+Target,Pest_Flag,해충 발생,Binary,"0(없음), 1(나방/초파리/애벌레 발견)",해충이 발생했을때 환경 값을 통하여 어떤 환경에 해충이 발생됐는지 판단
