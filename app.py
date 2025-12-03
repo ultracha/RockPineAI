@@ -349,6 +349,8 @@ else:
             if categorical_cols:
                 st.markdown("#### 📋 Categorical 컬럼")
                 for col in categorical_cols:
+                    if col == '건강상태':
+                        continue
                     checked = st.checkbox(
                         f"`{col}`",
                         value=col in prev_selected,
@@ -362,6 +364,8 @@ else:
             if numeric_cols:
                 st.markdown("#### 🔢 Numeric 컬럼")
                 for col in numeric_cols:
+                    if col == '성장높이':
+                        continue
                     checked = st.checkbox(
                         f"`{col}`",
                         value=col in prev_selected,
