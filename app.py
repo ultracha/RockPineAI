@@ -32,9 +32,9 @@ if "df" not in st.session_state:
 if "selected_features" not in st.session_state:
     st.session_state.selected_features = []
 if "height_target" not in st.session_state:
-    st.session_state.height_target = None
+    st.session_state.height_target = '성장높이' #None
 if "health_target" not in st.session_state:
-    st.session_state.health_target = None
+    st.session_state.health_target = '건강상태' #None
 if "artifacts" not in st.session_state:
     st.session_state.artifacts = None
 if "metrics" not in st.session_state:
@@ -54,8 +54,9 @@ def detect_column_types(df: pd.DataFrame, columns: List[str]) -> Tuple[List[str]
         # 숫자형이지만 고유값이 적으면 categorical로 간주
         if df[col].dtype in ["object", "string", "category"]:
             categorical.append(col)
-        elif df[col].nunique() < 3 and df[col].dtype in ["int64", "int32"]:
-            # 고유값이 3개 미만인 정수형은 categorical로 간주
+        #elif df[col].nunique() < 3 and df[col].dtype in ["int64", "int32"]:
+        # col '모종 연식'일 경우  categorical로 간주    
+        elif col == '모종연식':
             categorical.append(col)
         else:
             numeric.append(col)
@@ -231,14 +232,14 @@ def recommend_environments_dynamic(
         healthy_probability = health_proba_all[:, 0]
 
     recommendations = feature_space.copy()
-    recommendations["expected_height_cm"] = expected_height
-    recommendations["healthy_probability"] = healthy_probability
+    recommendations["예상 높이"] = expected_height
+    recommendations["건강 확률"] = healthy_probability
     recommendations["score"] = (
-        recommendations["expected_height_cm"] * recommendations["healthy_probability"]
+        recommendations["예상 높이"] * recommendations["건강 확률"]
     )
 
     recommendations = recommendations.sort_values(
-        by=["healthy_probability", "expected_height_cm", "score"],
+        by=["건강 확률", "예상 높이", "score"],
         ascending=[False, False, False],
     ).reset_index(drop=True)
 
@@ -259,7 +260,23 @@ with st.sidebar:
 
     if uploaded_file is not None:
         try:
-            df = pd.read_csv(uploaded_file)
+            # 여러 인코딩 시도 (한국어 파일 지원)
+            encodings = ['utf-8', 'cp949', 'euc-kr', 'latin-1']
+            df = None
+            last_error = None
+            
+            for encoding in encodings:
+                try:
+                    uploaded_file.seek(0)  # 파일 포인터를 처음으로 리셋
+                    df = pd.read_csv(uploaded_file, encoding=encoding)
+                    break
+                except (UnicodeDecodeError, UnicodeError) as e:
+                    last_error = e
+                    continue
+            
+            if df is None:
+                raise last_error if last_error else Exception("파일 인코딩을 확인할 수 없습니다.")
+            
             st.session_state.df = df
             st.success(f"✅ 데이터 로드 완료: {len(df)} 행, {len(df.columns)} 컬럼")
         except Exception as e:
@@ -271,7 +288,7 @@ with st.sidebar:
     if st.session_state.df is not None:
         st.header("⚙️ 모델 설정")
         top_k = st.slider("추천 개수", min_value=1, max_value=20, value=5)
-        healthy_label = st.text_input("건강 상태 레이블", value="0", help="정상 상태로 간주할 레이블 값")
+        healthy_label = st.text_input("건강 상태 레이블", value="정상", help="정상 상태로 간주할 레이블 값")
 
 # 메인 영역
 if st.session_state.df is None:
@@ -480,8 +497,8 @@ else:
                 st.markdown("#### 높이 vs 건강 확률")
                 st.scatter_chart(
                     recommendations,
-                    x="expected_height_cm",
-                    y="healthy_probability",
+                    x="예상 높이",
+                    y="건강 확률",
                     size="score",
                     color="score",
                 )
@@ -491,7 +508,7 @@ else:
                 st.bar_chart(
                     recommendations.set_index(
                         recommendations.index.map(lambda x: f"환경 {x+1}")
-                    )["expected_height_cm"]
+                    )["예상 높이"]
                 )
             
             # 상세 정보
@@ -500,9 +517,9 @@ else:
                 with st.expander(f"환경 {idx+1} (점수: {row['score']:.2f})"):
                     col1, col2, col3 = st.columns(3)
                     with col1:
-                        st.metric("예상 높이 (cm)", f"{row['expected_height_cm']:.2f}")
+                        st.metric("예상 높이 (cm)", f"{row['예상 높이']:.2f}")
                     with col2:
-                        st.metric("건강 확률", f"{row['healthy_probability']:.3f}")
+                        st.metric("건강 확률", f"{row['건강 확률']:.3f}")
                     with col3:
                         st.metric("종합 점수", f"{row['score']:.2f}")
                     

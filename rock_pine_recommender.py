@@ -73,7 +73,25 @@ class ModelArtifacts:
 
 def load_dataset(csv_path: str) -> pd.DataFrame:
     """Loads the dataset and enforces expected columns."""
-    df = pd.read_csv(csv_path)
+    # 여러 인코딩 시도 (한국어 파일 지원)
+    encodings = ['utf-8', 'cp949', 'euc-kr', 'latin-1']
+    df = None
+    last_error = None
+    
+    for encoding in encodings:
+        try:
+            df = pd.read_csv(csv_path, encoding=encoding)
+            break
+        except (UnicodeDecodeError, UnicodeError) as e:
+            last_error = e
+            continue
+    
+    if df is None:
+        raise ValueError(
+            f"파일 인코딩을 확인할 수 없습니다. "
+            f"시도한 인코딩: {', '.join(encodings)}. "
+            f"마지막 오류: {last_error}"
+        )
 
     required_columns = set(INPUT_FEATURES + [HEIGHT_TARGET, HEALTH_TARGET])
     missing = required_columns - set(df.columns)

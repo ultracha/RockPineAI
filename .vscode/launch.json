@@ -4,6 +4,7 @@
     // 자세한 내용을 보려면 https://go.microsoft.com/fwlink/?linkid=830387을(를) 방문하세요.
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "Python Debugger: Current File with Arguments",
             "type": "debugpy",
@@ -20,6 +21,18 @@
                 "--output-json",
                 "/Users/ultracha/Projects/RockPineAI/results.json"
             ]
+        },
+        {
+            "name": "Python Debugger: run streamlit app",
+            "type": "debugpy",
+            "request": "launch",
+            "program": ".venv/bin/streamlit",
+            "console": "integratedTerminal",
+            "args": [
+                "run",
+                "app.py"
+            ]
         }
+
     ]
 }
