@@ -54,8 +54,8 @@ def detect_column_types(df: pd.DataFrame, columns: List[str]) -> Tuple[List[str]
         # 숫자형이지만 고유값이 적으면 categorical로 간주
         if df[col].dtype in ["object", "string", "category"]:
             categorical.append(col)
-        elif df[col].nunique() < 20 and df[col].dtype in ["int64", "int32"]:
-            # 고유값이 20개 미만인 정수형은 categorical로 간주
+        elif df[col].nunique() < 3 and df[col].dtype in ["int64", "int32"]:
+            # 고유값이 3개 미만인 정수형은 categorical로 간주
             categorical.append(col)
         else:
             numeric.append(col)
